@@ -90,3 +90,6 @@ $RECYCLE.BIN/
 
 # Gogland
 .idea/
+
+# GoGrow
+target/
