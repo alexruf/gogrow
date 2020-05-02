@@ -2,13 +2,11 @@ package main
 
 import (
 	"context"
+	"github.com/alexruf/gogrow/pkg/config"
 	"github.com/alexruf/gogrow/pkg/scheduler"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"os/signal"
-	"os/user"
-	"path/filepath"
 	"syscall"
 	"time"
 )
@@ -17,22 +15,8 @@ func main() {
 	logger := log.New(os.Stdout, "[GoGrow]", log.LstdFlags)
 	logger.Println("Starting...")
 
-	logger.Println("Initializing config...")
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	usr, err := user.Current()
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(filepath.Join(usr.HomeDir, ".gogrow"))
-	viper.AddConfigPath(dir)
-	err = viper.ReadInConfig()
-	if err != nil {
+	conf := config.NewConfig(logger)
+	if err := conf.Init(); err != nil {
 		logger.Fatalf("Fatal error reading in config file: %s\n", err)
 	}
 
@@ -48,13 +32,12 @@ func main() {
 
 	<-exitChan // Blocks until everything has shutdown
 
-	logger.Println("Writing config file...")
-	err = viper.WriteConfig()
-	if err != nil {
+	logger.Println("Done, shutting down!")
+
+	if err := conf.Write(); err != nil {
 		logger.Fatalf("Fatal error writing in config file: %s\n", err)
 	}
-
-	logger.Println("Done, shutting down!")
+	os.Exit(0)
 }
 
 func gracefullShutdown(scheduler scheduler.Scheduler, logger *log.Logger, termChan <-chan os.Signal, quitChan chan<- bool) {

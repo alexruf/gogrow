@@ -1,0 +1,6 @@
+# Hour of the day at when to start shooting pictures with the camera
+shootfromhour: 9
+# Hour of the day at when to stop shooting pictures with the camera
+shootuntilhour: 22
+# Interval in minutes
+shootintervalminutes: 30
